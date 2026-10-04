@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { AuthProvider } from "@/components/auth-provider";
 import { Toast } from "@/components/ui/toast";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
+const plusJakartaSans = localFont({
+  src: "./fonts/plus-jakarta-sans-latin.woff2",
   variable: "--font-plus-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "400 800",
   display: "swap",
 });
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: "./fonts/inter-latin.woff2",
   variable: "--font-inter",
-  weight: ["400", "500", "600"],
+  weight: "400 600",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetbrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin.woff2",
   variable: "--font-jetbrains-mono",
-  weight: ["400", "500", "600"],
+  weight: "400 600",
   display: "swap",
 });
 
