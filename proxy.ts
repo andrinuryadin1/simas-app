@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Next.js 16 renamed the `middleware` file convention to `proxy`.
- * See node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md
+ * Next.js middleware convention
+ * See: node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md
  *
  * NextAuth v5 with `strategy: "jwt"` stores the session in a single cookie. The name
  * differs between plain http (dev) and https (production), so both are checked.
@@ -41,7 +41,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except API routes, static assets and Next.js internals.
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/admin/:path*",
+    "/guru/:path*",
+    "/manajemen/:path*",
+    "/notifikasi/:path*",
   ],
 };

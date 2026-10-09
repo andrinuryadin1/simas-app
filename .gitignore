@@ -39,6 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+build-output.txt
+build-check.txt
+build-fix.txt
+build-full.log
 
 # SQLite database (data lokal, jangan commit ke repo)
 data/simas.db
