@@ -5,8 +5,10 @@ import bcrypt from "bcryptjs";
 import { getUserByEmailAndRole } from "@/lib/auth-helpers";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   pages: {
     signIn: "/login",
+    signOut: "/login",
     error: "/login",
   },
   providers: [

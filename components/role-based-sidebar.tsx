@@ -75,6 +75,19 @@ function getInitials(name: string) {
 export function RoleBasedSidebar({ role, menuItems, user }: RoleBasedSidebarProps) {
   const pathname = usePathname()
   const config = roleConfig[role]
+  const [loggingOut, setLoggingOut] = React.useState(false)
+
+  const handleLogout = async () => {
+    if (loggingOut) return
+    setLoggingOut(true)
+    try {
+      await signOut({ redirect: false })
+    } catch (e) {
+      console.error("SignOut error:", e)
+    } finally {
+      window.location.href = "/login"
+    }
+  }
 
   const isActive = (href: string) => {
     return pathname === href || pathname.startsWith(href + "/")
@@ -186,12 +199,15 @@ export function RoleBasedSidebar({ role, menuItems, user }: RoleBasedSidebarProp
         <SidebarMenu className="group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center">
           <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-full">
             <SidebarMenuButton
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              tooltip="Keluar"
-              className="h-9 px-3 rounded-xl text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold transition-colors group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:justify-center"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              tooltip={loggingOut ? "Mengeluarkan..." : "Keluar"}
+              className="h-9 px-3 rounded-xl text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-semibold transition-colors group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:justify-center disabled:opacity-50"
             >
-              <LogOut className="size-4.5 shrink-0 text-rose-500" />
-              <span className="group-data-[collapsible=icon]:hidden">Keluar</span>
+              <LogOut className={cn("size-4.5 shrink-0 text-rose-500", loggingOut && "animate-spin")} />
+              <span className="group-data-[collapsible=icon]:hidden">
+                {loggingOut ? "Mengeluarkan..." : "Keluar"}
+              </span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
