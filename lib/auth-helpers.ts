@@ -12,14 +12,16 @@ import { createClient, type Client } from "@libsql/client";
 // Environment variables are read lazily inside getClient() to avoid DNS lookups
 // during module import (which would happen in the Next.js build phase).
 
+const cleanEnv = (val?: string) => (val ? val.trim().replace(/^["']|["']$/g, "") : val);
+
 let _client: Client | null = null;
 let _useFallback = false;
 
 function getClient(): Client {
   if (_client) return _client;
 
-  const url = process.env.TURSO_DATABASE_URL || "file:data/simas.db";
-  const authToken = process.env.TURSO_AUTH_TOKEN;
+  const url = cleanEnv(process.env.TURSO_DATABASE_URL) || "file:data/simas.db";
+  const authToken = cleanEnv(process.env.TURSO_AUTH_TOKEN);
 
   try {
     _client = createClient({ url, authToken });

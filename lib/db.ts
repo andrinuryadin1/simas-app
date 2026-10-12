@@ -148,4 +148,5 @@ const db = {
   },
 };
 
+export { db };
 export default db;

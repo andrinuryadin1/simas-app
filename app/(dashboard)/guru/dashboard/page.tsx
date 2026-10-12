@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
+import db from "@/lib/db";
 import { getGuruStats, getNotifications } from "@/lib/queries";
 
 export default async function GuruDashboard() {
@@ -25,7 +26,19 @@ export default async function GuruDashboard() {
   const sessionUser = session?.user as { id?: string; email?: string; name?: string; role?: string } | undefined;
   const userId = sessionUser?.id ?? "";
   const role = sessionUser?.role ?? "";
-  const userName = sessionUser?.name ?? "Ustadz";
+
+  let userName = sessionUser?.name;
+  if (!userName && userId) {
+    try {
+      const userRow = await db.prepare("SELECT full_name FROM users WHERE id = ?").get<{ full_name: string }>(userId);
+      if (userRow?.full_name) {
+        userName = userRow.full_name;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  userName = userName || "Ustadz/Ustadzah";
 
   const [guruStats, notifData] = await Promise.all([
     role === "guru" ? getGuruStats(userId) : Promise.resolve({ myStudents: 0, myAttendancePct: 0, myActiveCases: 0, myKelasId: null, myKelasName: null }),
@@ -126,7 +139,7 @@ export default async function GuruDashboard() {
               <span>Portal Pembina Halaqah</span>
             </div>
             <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Assalamu'alaikum, Ustadz Rizki
+              Assalamu'alaikum, {userName}
             </h1>
             <p className="text-sm font-medium text-slate-600 mt-1 max-w-xl">
               Berikut ringkasan halaqah Anda hari ini. Pastikan seluruh absensi dan capaian hafalan santri tercatat tepat waktu.
