@@ -16,7 +16,10 @@ try {
     const i = t.indexOf("=");
     if (i === -1) continue;
     const k = t.slice(0, i).trim();
-    const v = t.slice(i + 1).trim();
+    let v = t.slice(i + 1).trim();
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+      v = v.slice(1, -1);
+    }
     if (!process.env[k]) process.env[k] = v;
   }
 } catch {}

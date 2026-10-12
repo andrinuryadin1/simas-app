@@ -21,8 +21,9 @@ import { createClient, type Client, type InValue } from "@libsql/client";
  * ditambahkan di setiap call site.
  */
 
-const URL = process.env.TURSO_DATABASE_URL || "file:data/simas.db";
-const AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
+const cleanEnv = (val?: string) => (val ? val.trim().replace(/^["']|["']$/g, "") : val);
+const URL = cleanEnv(process.env.TURSO_DATABASE_URL) || "file:data/simas.db";
+const AUTH_TOKEN = cleanEnv(process.env.TURSO_AUTH_TOKEN);
 
 // Lazy singleton — client hanya dibuat saat query pertama dijalankan
 let _client: Client | null = null;
