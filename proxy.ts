@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 /**
  * Next.js middleware convention
@@ -8,9 +9,14 @@ import type { NextRequest } from "next/server";
  * NextAuth v5 with `strategy: "jwt"` stores the session in a single cookie. The name
  * differs between plain http (dev) and https (production), so both are checked.
  */
-const SESSION_COOKIES = ["authjs.session-token", "__Secure-authjs.session-token"];
 
 const PROTECTED_PREFIXES = ["/admin", "/guru", "/manajemen", "/notifikasi"];
+
+const ROLE_ACCESS = {
+  admin: ["/admin", "/manajemen", "/guru", "/notifikasi"],
+  guru: ["/guru", "/manajemen", "/notifikasi"],
+  manajemen: ["/manajemen", "/guru", "/notifikasi"],
+};
 
 function isProtected(pathname: string) {
   return PROTECTED_PREFIXES.some(
@@ -18,21 +24,41 @@ function isProtected(pathname: string) {
   );
 }
 
-export function proxy(request: NextRequest) {
+function hasAccess(role: string, pathname: string): boolean {
+  const allowedPaths = ROLE_ACCESS[role as keyof typeof ROLE_ACCESS];
+  if (!allowedPaths) return false;
+  return allowedPaths.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!isProtected(pathname)) {
     return NextResponse.next();
   }
 
-  // Role checks stay in the dashboard layouts; here we only guard against a
-  // completely anonymous request so unauthenticated visitors never render a shell.
-  const hasSession = SESSION_COOKIES.some((name) => request.cookies.has(name));
-  if (!hasSession) {
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+    cookieName: "authjs.session-token",
+  });
+
+  if (!token?.id) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
     url.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(url);
+  }
+
+  const role = token.role as string;
+  if (!hasAccess(role, pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("error", "access_denied");
     return NextResponse.redirect(url);
   }
 
